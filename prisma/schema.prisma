@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model IntegracionLog {
+  id                 Int      @id @default(autoincrement())
+  tipo               String   @db.VarChar(40)
+  canal              String   @db.VarChar(30)
+  estado             String   @db.VarChar(20)
+  destinatario       String?  @db.VarChar(200)
+  asunto             String?  @db.VarChar(300)
+  plantillaId        Int?
+  payload            Json?
+  respuestaProveedor String?  @db.VarChar(1000)
+  intentos           Int      @default(1)
+  idempotencyKey     String?  @unique @db.VarChar(100)
+  usuarioId          Int?
+  sucursalId         Int?
+  referenciaId       Int?
+  referenciaTipo     String?  @db.VarChar(50)
+  errorDetalle       String?  @db.VarChar(1000)
+  duracionMs         Int?
+  createdAt          DateTime @default(now())
+
+  @@index([tipo, estado])
+  @@index([idempotencyKey])
+  @@index([createdAt])
+  @@map("integracion_logs")
+}
+
+model PlantillaEmail {
+  id           Int      @id @default(autoincrement())
+  tipo         String   @unique @db.VarChar(50)
+  nombre       String   @db.VarChar(100)
+  asunto       String   @db.VarChar(300)
+  cuerpoHtml   String
+  cuerpoTexto  String?
+  variables    String[] @default([])
+  activa       Boolean  @default(true)
+  version      Int      @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("plantillas_email")
+}
+
+model PlantillaWhatsApp {
+  id          Int      @id @default(autoincrement())
+  tipo        String   @unique @db.VarChar(50)
+  nombre      String   @db.VarChar(100)
+  nombreMeta  String   @db.VarChar(100)
+  idioma      String   @default("es") @db.VarChar(10)
+  parametros  String[] @default([])
+  activa      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@map("plantillas_whatsapp")
+}
+
+model ConfiguracionSucursal {
+  id               Int      @id @default(autoincrement())
+  sucursalId       Int      @unique
+  emailRemitente   String?  @db.VarChar(200)
+  nombreRemitente  String?  @db.VarChar(100)
+  whatsappNumero   String?  @db.VarChar(30)
+  videoProveedor   String?  @db.VarChar(20)
+  activa           Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("configuracion_sucursal")
+}
+
+model PlantillaExportacion {
+  id              Int      @id @default(autoincrement())
+  nombre          String   @unique @db.VarChar(100)
+  sistema         String   @db.VarChar(50)
+  formato         String   @db.VarChar(10)
+  mapeoColumnas   Json
+  separador       String?  @db.VarChar(5)
+  encoding        String   @default("UTF-8") @db.VarChar(10)
+  incluirCabecera Boolean  @default(true)
+  activa          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("plantillas_exportacion")
+}
+
+model ConfiguracionBackup {
+  id            Int         @id @default(autoincrement())
+  nombre        String      @db.VarChar(100)
+  host          String      @db.VarChar(200)
+  puerto        Int         @default(5432)
+  nombreBd      String      @db.VarChar(100)
+  usuario       String      @db.VarChar(100)
+  password      String      @db.VarChar(200)
+  frecuencia    String      @db.VarChar(20)
+  retencionDias Int         @default(7)
+  backupPath    String?     @db.VarChar(500)
+  s3Bucket      String?     @db.VarChar(200)
+  s3Prefijo     String?     @db.VarChar(200)
+  activo        Boolean     @default(true)
+  ultimoBackup  DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  logs          BackupLog[]
+
+  @@map("configuraciones_backup")
+}
+
+model BackupLog {
+  id                    Int                 @id @default(autoincrement())
+  configuracionBackupId Int
+  baseDatos             String              @db.VarChar(100)
+  tamanioBytes          BigInt?
+  duracionMs            Int?
+  rutaArchivo           String?             @db.VarChar(500)
+  s3Url                 String?             @db.VarChar(500)
+  estado                String              @db.VarChar(20)
+  errorDetalle          String?             @db.VarChar(1000)
+  disparadoPor          String              @default("CRON") @db.VarChar(20)
+  usuarioId             Int?
+  createdAt             DateTime            @default(now())
+  configuracion         ConfiguracionBackup @relation(fields: [configuracionBackupId], references: [id], onDelete: Cascade)
+
+  @@index([configuracionBackupId])
+  @@index([createdAt])
+  @@map("backup_logs")
+}
