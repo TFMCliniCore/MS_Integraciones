@@ -1,5 +1,7 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query, Req } from '@nestjs/common';
-import { Request } from 'express';
+import { Body, Controller, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Query, Req, Res } from '@nestjs/common';
+import { Request, Response } from 'express';
+import { createReadStream, existsSync, statSync } from 'node:fs';
+import { basename } from 'node:path';
 import { BackupService } from './backup.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CrearConfiguracionBackupDto, ForzarBackupDto } from './dto/configuracion-backup.dto';
@@ -99,5 +101,39 @@ export class BackupsController {
       where: { id },
       include: { configuracion: { select: { nombre: true, nombreBd: true } } },
     });
+  }
+
+  /**
+   * Descarga el archivo .dump generado por un backup específico.
+   * GET /api/v1/integraciones/backups/download/:id
+   */
+  @Get('download/:id')
+  async download(@Param('id', ParseIntPipe) id: number, @Res() res: Response) {
+    const log = await this.prisma.backupLog.findUnique({ where: { id } });
+
+    if (!log) {
+      throw new NotFoundException(`BackupLog ${id} no existe`);
+    }
+    if (!log.rutaArchivo) {
+      throw new NotFoundException(
+        `El backup ${id} no tiene archivo asociado (estado: ${log.estado})`,
+      );
+    }
+    if (!existsSync(log.rutaArchivo)) {
+      throw new NotFoundException(
+        `El archivo ${log.rutaArchivo} no se encontró en el sistema de archivos (puede haber sido eliminado por la política de retención)`,
+      );
+    }
+
+    const stat = statSync(log.rutaArchivo);
+    const filename = basename(log.rutaArchivo);
+
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', String(stat.size));
+    res.setHeader('X-Backup-BaseDatos', log.baseDatos);
+    res.setHeader('X-Backup-Estado', log.estado);
+
+    createReadStream(log.rutaArchivo).pipe(res);
   }
 }

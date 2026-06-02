@@ -55,6 +55,7 @@ export class WhatsappService {
           templateName: plantilla.nombreMeta,
           language: plantilla.idioma,
           params,
+          rawParams: dto.parametros, // parámetros con nombre para TwilioProvider
         }),
         3,
         this.logger,

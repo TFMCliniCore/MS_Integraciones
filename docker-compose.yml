@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:16-alpine
@@ -72,13 +70,12 @@ services:
     ports:
       - "${PORT}:${PORT}"
     volumes:
-      - backup_data:/backups
+      - ./backups:/backups   # bind mount → los .dump aparecen en MS_Integraciones/backups/
     networks:
       - ms-integraciones-net
 
 volumes:
   postgres_data:
-  backup_data:
 
 networks:
   ms-integraciones-net:

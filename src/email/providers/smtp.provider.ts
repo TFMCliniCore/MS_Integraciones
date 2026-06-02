@@ -20,6 +20,14 @@ export class SmtpProvider implements EmailProvider {
   }
 
   async send(payload: EmailPayload): Promise<string> {
+    // Falla rápido si las credenciales SMTP no están configuradas,
+    // evitando 3 reintentos innecesarios de backoff exponencial.
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      throw new Error(
+        'SMTP_USER o SMTP_PASS no están configurados. Ajusta el .env o cambia EMAIL_PROVIDER=resend.',
+      );
+    }
+
     const from = payload.from
       ? `"${payload.fromName ?? 'CliniCore'}" <${payload.from}>`
       : `"${process.env.EMAIL_FROM_NAME ?? 'CliniCore'}" <${process.env.EMAIL_FROM}>`;
