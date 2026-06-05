@@ -1,0 +1,877 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "MS Integraciones y Backups",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Coleccion Postman para probar el microservicio MS Integraciones y Backups de CliniCore. Puerto 3009."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3009/api/v1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Email",
+      "item": [
+        {
+          "name": "Enviar email con plantilla",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"cliente@example.com\",\n  \"tipoPlantilla\": \"CONFIRMACION_CITA\",\n  \"variables\": {\n    \"nombreCliente\": \"Ana Gomez\",\n    \"nombreMascota\": \"Max\",\n    \"fechaCita\": \"2026-06-15\",\n    \"horaCita\": \"10:30\",\n    \"nombreVeterinario\": \"Dr. Perez\"\n  },\n  \"idempotencyKey\": \"cita-42-confirmacion\",\n  \"referenciaId\": 42,\n  \"referenciaTipo\": \"CITA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/email/enviar",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "email", "enviar"]
+            }
+          }
+        },
+        {
+          "name": "Enviar email con plantilla BIENVENIDA",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"nuevo@example.com\",\n  \"tipoPlantilla\": \"BIENVENIDA\",\n  \"variables\": {\n    \"nombreCliente\": \"Carlos Lopez\",\n    \"nombreClinica\": \"VetCliniCore\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/email/enviar",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "email", "enviar"]
+            }
+          }
+        },
+        {
+          "name": "Enviar email con plantilla RECORDATORIO_CITA",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"cliente@example.com\",\n  \"tipoPlantilla\": \"RECORDATORIO_CITA\",\n  \"variables\": {\n    \"nombreCliente\": \"Ana Gomez\",\n    \"nombreMascota\": \"Max\",\n    \"fechaCita\": \"2026-06-16\",\n    \"horaCita\": \"10:30\"\n  },\n  \"idempotencyKey\": \"cita-42-recordatorio-24h\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/email/enviar",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "email", "enviar"]
+            }
+          }
+        },
+        {
+          "name": "Enviar email con plantilla ALERTA_VACUNA",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"cliente@example.com\",\n  \"tipoPlantilla\": \"ALERTA_VACUNA\",\n  \"variables\": {\n    \"nombreCliente\": \"Ana Gomez\",\n    \"nombreMascota\": \"Max\",\n    \"nombreVacuna\": \"Rabia\",\n    \"fechaVencimiento\": \"2026-07-01\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/email/enviar",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "email", "enviar"]
+            }
+          }
+        },
+        {
+          "name": "Enviar email masivo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoPlantilla\": \"ALERTA_VACUNA\",\n  \"destinatarios\": [\n    {\n      \"to\": \"cliente1@example.com\",\n      \"variables\": { \"nombreCliente\": \"Ana\", \"nombreMascota\": \"Max\", \"nombreVacuna\": \"Rabia\", \"fechaVencimiento\": \"2026-07-01\" }\n    },\n    {\n      \"to\": \"cliente2@example.com\",\n      \"variables\": { \"nombreCliente\": \"Luis\", \"nombreMascota\": \"Luna\", \"nombreVacuna\": \"Parvovirus\", \"fechaVencimiento\": \"2026-07-10\" }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/email/masivo",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "email", "masivo"]
+            }
+          }
+        },
+        {
+          "name": "Listar plantillas de email",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/email/plantillas",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "email", "plantillas"]
+            }
+          }
+        },
+        {
+          "name": "Obtener plantilla email por tipo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/email/plantillas/CONFIRMACION_CITA",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "email", "plantillas", "CONFIRMACION_CITA"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar plantilla email",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asunto\": \"Confirmacion de su cita para {{nombreMascota}} — {{fechaCita}}\",\n  \"cuerpoTexto\": \"Estimado/a {{nombreCliente}}, su cita para {{nombreMascota}} esta confirmada para el {{fechaCita}} a las {{horaCita}}.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/email/plantillas/CONFIRMACION_CITA",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "email", "plantillas", "CONFIRMACION_CITA"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "WhatsApp",
+      "item": [
+        {
+          "name": "Enviar WhatsApp inmediato",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"+573001234567\",\n  \"tipoPlantilla\": \"RECORDATORIO_CITA\",\n  \"parametros\": {\n    \"nombreCliente\": \"Ana Gomez\",\n    \"nombreMascota\": \"Max\",\n    \"fechaCita\": \"16 de junio\",\n    \"horaCita\": \"10:30\"\n  },\n  \"idempotencyKey\": \"cita-42-wa-recordatorio\",\n  \"referenciaId\": 42,\n  \"referenciaTipo\": \"CITA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/whatsapp/enviar",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "whatsapp", "enviar"]
+            }
+          }
+        },
+        {
+          "name": "Enviar WhatsApp CONFIRMACION_CITA",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"+573001234567\",\n  \"tipoPlantilla\": \"CONFIRMACION_CITA\",\n  \"parametros\": {\n    \"nombreCliente\": \"Carlos Lopez\",\n    \"nombreMascota\": \"Luna\",\n    \"fechaCita\": \"15 de junio\",\n    \"horaCita\": \"09:00\"\n  },\n  \"referenciaId\": 5,\n  \"referenciaTipo\": \"CITA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/whatsapp/enviar",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "whatsapp", "enviar"]
+            }
+          }
+        },
+        {
+          "name": "Programar WhatsApp para 24h antes",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"+573001234567\",\n  \"tipoPlantilla\": \"RECORDATORIO_CITA\",\n  \"parametros\": {\n    \"nombreCliente\": \"Ana Gomez\",\n    \"nombreMascota\": \"Max\",\n    \"fechaCita\": \"17 de junio\",\n    \"horaCita\": \"10:30\"\n  },\n  \"programadoPara\": \"2026-06-16T10:30:00.000Z\",\n  \"referenciaId\": 42,\n  \"referenciaTipo\": \"CITA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/whatsapp/programar",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "whatsapp", "programar"]
+            }
+          }
+        },
+        {
+          "name": "Cancelar WhatsApp programado",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/whatsapp/programar/cita-42-wa-recordatorio",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "whatsapp", "programar", "cita-42-wa-recordatorio"]
+            }
+          }
+        },
+        {
+          "name": "Listar WhatsApp programados",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/whatsapp/programados",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "whatsapp", "programados"]
+            }
+          }
+        },
+        {
+          "name": "Listar plantillas de WhatsApp",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/whatsapp/plantillas",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "whatsapp", "plantillas"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Videollamadas",
+      "item": [
+        {
+          "name": "Crear sala de videollamada",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"citaId\": 42,\n  \"tipoCita\": \"TELEMEDICINA\",\n  \"titulo\": \"Consulta telemedicina — Max\",\n  \"sucursalId\": 1,\n  \"duracionMinutos\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/videollamada/crear",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "videollamada", "crear"]
+            }
+          }
+        },
+        {
+          "name": "Crear sala - tipo incorrecto (debe retornar 422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"citaId\": 10,\n  \"tipoCita\": \"CONSULTA\",\n  \"sucursalId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/videollamada/crear",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "videollamada", "crear"]
+            }
+          }
+        },
+        {
+          "name": "Cancelar sala de videollamada",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/videollamada/42",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "videollamada", "42"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Exportacion Contable",
+      "item": [
+        {
+          "name": "Listar plantillas de exportacion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/exportacion/plantillas",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "exportacion", "plantillas"]
+            }
+          }
+        },
+        {
+          "name": "Generar exportacion CSV - Siigo Colombia",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombrePlantilla\": \"Siigo Colombia\",\n  \"datos\": [\n    {\n      \"numeroDocumento\": \"FV-001\",\n      \"fecha\": \"2026-06-01\",\n      \"cliente\": \"Ana Gomez\",\n      \"nitCedula\": \"1234567890\",\n      \"concepto\": \"Consulta veterinaria\",\n      \"valor\": 80000,\n      \"iva\": 0,\n      \"total\": 80000,\n      \"metodoPago\": \"efectivo\"\n    },\n    {\n      \"numeroDocumento\": \"FV-002\",\n      \"fecha\": \"2026-06-02\",\n      \"cliente\": \"Carlos Lopez\",\n      \"nitCedula\": \"9876543210\",\n      \"concepto\": \"Vacunacion multiple\",\n      \"valor\": 120000,\n      \"iva\": 0,\n      \"total\": 120000,\n      \"metodoPago\": \"transferencia\"\n    }\n  ],\n  \"desde\": \"2026-06-01\",\n  \"hasta\": \"2026-06-30\",\n  \"sucursalId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/exportacion/generar",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "exportacion", "generar"]
+            }
+          }
+        },
+        {
+          "name": "Generar exportacion XML - World Office",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombrePlantilla\": \"World Office\",\n  \"datos\": [\n    {\n      \"numeroDocumento\": \"FV-001\",\n      \"fecha\": \"2026-06-01\",\n      \"cliente\": \"Ana Gomez\",\n      \"nitCedula\": \"1234567890\",\n      \"concepto\": \"Consulta veterinaria\",\n      \"valor\": 80000,\n      \"iva\": 0,\n      \"total\": 80000,\n      \"metodoPago\": \"efectivo\"\n    }\n  ],\n  \"desde\": \"2026-06-01\",\n  \"hasta\": \"2026-06-30\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/exportacion/generar",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "exportacion", "generar"]
+            }
+          }
+        },
+        {
+          "name": "Generar exportacion con campo faltante (debe retornar PARCIAL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombrePlantilla\": \"CSV Generico\",\n  \"datos\": [\n    {\n      \"numeroDocumento\": \"FV-003\",\n      \"fecha\": \"2026-06-03\",\n      \"cliente\": \"Pedro Ramirez\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/exportacion/generar",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "exportacion", "generar"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Backups",
+      "item": [
+        {
+          "name": "Listar configuraciones de backup",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/backups/configuraciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "backups", "configuraciones"]
+            }
+          }
+        },
+        {
+          "name": "Crear configuracion de backup - MS Inventario",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"MS Inventario\",\n  \"host\": \"host.docker.internal\",\n  \"puerto\": 5437,\n  \"nombreBd\": \"ms-inventario\",\n  \"usuario\": \"postgres\",\n  \"password\": \"Ms_1nv3nt4r10\",\n  \"frecuencia\": \"DIARIO\",\n  \"retencionDias\": 7\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/backups/configuraciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "backups", "configuraciones"]
+            }
+          }
+        },
+        {
+          "name": "Crear configuracion de backup - MS Entidades Core",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"MS Entidades Core\",\n  \"host\": \"host.docker.internal\",\n  \"puerto\": 5432,\n  \"nombreBd\": \"ms_entidades_core\",\n  \"usuario\": \"entidades_user\",\n  \"password\": \"contrasena_segura\",\n  \"frecuencia\": \"DIARIO\",\n  \"retencionDias\": 7\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/backups/configuraciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "backups", "configuraciones"]
+            }
+          }
+        },
+        {
+          "name": "Crear configuracion de backup - MS Agenda",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"MS Agenda\",\n  \"host\": \"host.docker.internal\",\n  \"puerto\": 5433,\n  \"nombreBd\": \"ms_agenda\",\n  \"usuario\": \"agenda_user\",\n  \"password\": \"agenda_pass\",\n  \"frecuencia\": \"SEMANAL\",\n  \"retencionDias\": 28\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/backups/configuraciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "backups", "configuraciones"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar configuracion de backup",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"retencionDias\": 14,\n  \"frecuencia\": \"SEMANAL\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/backups/configuraciones/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "backups", "configuraciones", "1"]
+            }
+          }
+        },
+        {
+          "name": "Forzar backup manual (por path param)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/backups/ejecutar/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "backups", "ejecutar", "1"]
+            }
+          }
+        },
+        {
+          "name": "Forzar backup manual (por body)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"configuracionId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/backups/forzar",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "backups", "forzar"]
+            }
+          }
+        },
+        {
+          "name": "Listar logs de backup",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/backups/logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "backups", "logs"]
+            }
+          }
+        },
+        {
+          "name": "Listar logs de backup - filtro por configuracion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/backups/logs?configuracionId=1&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "backups", "logs"],
+              "query": [
+                { "key": "configuracionId", "value": "1" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener log de backup por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/backups/logs/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "backups", "logs", "1"]
+            }
+          }
+        },
+        {
+          "name": "Descargar archivo de backup",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/backups/download/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "backups", "download", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Logs de Integracion",
+      "item": [
+        {
+          "name": "Listar logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "logs"]
+            }
+          }
+        },
+        {
+          "name": "Listar logs - filtro por tipo EMAIL",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/logs?tipo=EMAIL",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "logs"],
+              "query": [
+                { "key": "tipo", "value": "EMAIL" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar logs - filtro por tipo WHATSAPP",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/logs?tipo=WHATSAPP",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "logs"],
+              "query": [
+                { "key": "tipo", "value": "WHATSAPP" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar logs - filtro por estado FALLIDO",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/logs?estado=FALLIDO",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "logs"],
+              "query": [
+                { "key": "estado", "value": "FALLIDO" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar logs - paginado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/logs?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "logs"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener log por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/logs/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "logs", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plantillas",
+      "item": [
+        {
+          "name": "Listar plantillas de email",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/plantillas/email",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "plantillas", "email"]
+            }
+          }
+        },
+        {
+          "name": "Obtener plantilla email por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/plantillas/email/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "plantillas", "email", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear plantilla email",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"FACTURA_GENERADA\",\n  \"nombre\": \"Factura generada\",\n  \"asunto\": \"Su factura {{numeroFactura}} ha sido generada\",\n  \"cuerpoHtml\": \"<h2>Factura {{numeroFactura}}</h2><p>Estimado/a {{nombreCliente}}, su factura por {{total}} ha sido generada.</p>\",\n  \"cuerpoTexto\": \"Factura {{numeroFactura}} por {{total}} generada para {{nombreCliente}}.\",\n  \"variables\": [\"nombreCliente\", \"numeroFactura\", \"total\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/plantillas/email",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "plantillas", "email"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar plantilla email",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asunto\": \"Asunto actualizado — {{nombreCliente}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/plantillas/email/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "plantillas", "email", "1"]
+            }
+          }
+        },
+        {
+          "name": "Activar plantilla email",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"activa\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/plantillas/email/1/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "plantillas", "email", "1", "toggle"]
+            }
+          }
+        },
+        {
+          "name": "Desactivar plantilla email",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"activa\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/plantillas/email/1/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "plantillas", "email", "1", "toggle"]
+            }
+          }
+        },
+        {
+          "name": "Listar plantillas de WhatsApp",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/plantillas/whatsapp",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "plantillas", "whatsapp"]
+            }
+          }
+        },
+        {
+          "name": "Obtener plantilla WhatsApp por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/plantillas/whatsapp/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "plantillas", "whatsapp", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear plantilla WhatsApp",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"CANCELACION_CITA\",\n  \"nombre\": \"Cancelacion de cita\",\n  \"nombreMeta\": \"cancelacion_cita_clinicore\",\n  \"idioma\": \"es\",\n  \"parametros\": [\"nombreCliente\", \"nombreMascota\", \"fechaCita\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/plantillas/whatsapp",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "plantillas", "whatsapp"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar plantilla WhatsApp",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idioma\": \"es\",\n  \"parametros\": [\"nombreCliente\", \"nombreMascota\", \"fechaCita\", \"horaCita\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/plantillas/whatsapp/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "plantillas", "whatsapp", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Configuracion Sucursal",
+      "item": [
+        {
+          "name": "Listar configuraciones de sucursales",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/configuracion-sucursal",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "configuracion-sucursal"]
+            }
+          }
+        },
+        {
+          "name": "Obtener configuracion de sucursal por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/configuracion-sucursal/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "configuracion-sucursal", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear o actualizar configuracion de sucursal",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sucursalId\": 1,\n  \"emailRemitente\": \"sucursal1@clinicore.com\",\n  \"nombreRemitente\": \"CliniCore Sucursal Norte\",\n  \"whatsappNumero\": \"+573101234567\",\n  \"videoProveedor\": \"google_meet\",\n  \"activa\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/configuracion-sucursal",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "configuracion-sucursal"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar configuracion de sucursal",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailRemitente\": \"sucursal1-nueva@clinicore.com\",\n  \"whatsappNumero\": \"+573109876543\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/configuracion-sucursal/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["integraciones", "configuracion-sucursal", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
