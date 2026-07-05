@@ -7,7 +7,6 @@ import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { VideollamadaModule } from './videollamada/videollamada.module';
 import { ExportacionModule } from './exportacion/exportacion.module';
 import { BackupsModule } from './backups/backups.module';
-import { LogsModule } from './logs/logs.module';
 import { PlantillasModule } from './plantillas/plantillas.module';
 import { ConfiguracionSucursalModule } from './configuracion-sucursal/configuracion-sucursal.module';
 import { HealthController } from './health/health.controller';
@@ -21,7 +20,6 @@ import { HealthController } from './health/health.controller';
     VideollamadaModule,
     ExportacionModule,
     BackupsModule,
-    LogsModule,
     PlantillasModule,
     ConfiguracionSucursalModule,
   ],

@@ -1,4 +1,5 @@
 import { Body, Controller, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Query, Req, Res } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger'; // 👈 Importación esencial
 import { Request, Response } from 'express';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { basename } from 'node:path';
@@ -7,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CrearConfiguracionBackupDto, ForzarBackupDto } from './dto/configuracion-backup.dto';
 import { encrypt } from '../common/crypto.util';
 
+@ApiTags('Integraciones - Backups y Respaldo') // 🎯 Agrupador en Swagger
 @Controller('integraciones/backups')
 export class BackupsController {
   constructor(
@@ -15,19 +17,19 @@ export class BackupsController {
   ) {}
 
   @Get('configuraciones')
+  @ApiOperation({ summary: 'Listar todas las configuraciones de respaldos registradas' })
   async listar() {
-    const configs = await this.prisma.configuracionBackup.findMany({
+    return this.prisma.configuracionBackup.findMany({
       select: {
         id: true, nombre: true, host: true, puerto: true, nombreBd: true,
         usuario: true, frecuencia: true, retencionDias: true, activo: true,
         ultimoBackup: true, createdAt: true,
-        // password se omite intencionalmente
       },
     });
-    return configs;
   }
 
   @Post('configuraciones')
+  @ApiOperation({ summary: 'Crear una nueva configuración para copias de seguridad automáticas' })
   async crear(@Body() dto: CrearConfiguracionBackupDto) {
     const passwordEncriptada = encrypt(dto.password);
     return this.prisma.configuracionBackup.create({
@@ -40,6 +42,7 @@ export class BackupsController {
   }
 
   @Post('forzar')
+  @ApiOperation({ summary: 'Forzar la ejecución inmediata de un backup pasando la configuración en el cuerpo' })
   async forzar(@Body() dto: ForzarBackupDto, @Req() req: Request) {
     const usuarioId = Number(req.headers['x-usuario-id'] ?? 0) || undefined;
     void this.backupService.ejecutar(dto.configuracionId, usuarioId);
@@ -47,6 +50,8 @@ export class BackupsController {
   }
 
   @Post('ejecutar/:id')
+  @ApiOperation({ summary: 'Forzar la ejecución inmediata de un backup por ID de configuración' })
+  @ApiParam({ name: 'id', description: 'ID de la configuración de backup a ejecutar' })
   async ejecutar(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     const usuarioId = Number(req.headers['x-usuario-id'] ?? 0) || undefined;
     void this.backupService.ejecutar(id, usuarioId);
@@ -54,6 +59,8 @@ export class BackupsController {
   }
 
   @Put('configuraciones/:id')
+  @ApiOperation({ summary: 'Actualizar los parámetros de una configuración de backup específica' })
+  @ApiParam({ name: 'id', description: 'ID de la configuración a modificar' })
   async actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: Partial<CrearConfiguracionBackupDto>,
@@ -73,6 +80,10 @@ export class BackupsController {
   }
 
   @Get('logs')
+  @ApiOperation({ summary: 'Consultar el historial y logs de auditoría de respaldos (Paginado)' })
+  @ApiQuery({ name: 'configuracionId', required: false, description: 'Filtrar logs por una configuración específica' })
+  @ApiQuery({ name: 'page', required: false, description: 'Número de página', example: '1' })
+  @ApiQuery({ name: 'limit', required: false, description: 'Cantidad de registros por página', example: '20' })
   async logs(
     @Query('configuracionId') configuracionId?: string,
     @Query('page') page = '1',
@@ -96,6 +107,8 @@ export class BackupsController {
   }
 
   @Get('logs/:id')
+  @ApiOperation({ summary: 'Obtener el detalle extendido de un log de respaldo por ID' })
+  @ApiParam({ name: 'id', description: 'ID del log de backup' })
   async log(@Param('id', ParseIntPipe) id: number) {
     return this.prisma.backupLog.findUniqueOrThrow({
       where: { id },
@@ -103,27 +116,15 @@ export class BackupsController {
     });
   }
 
-  /**
-   * Descarga el archivo .dump generado por un backup específico.
-   * GET /api/v1/integraciones/backups/download/:id
-   */
   @Get('download/:id')
+  @ApiOperation({ summary: 'Descargar el archivo físico cifrado (.dump) de una copia de seguridad' })
+  @ApiParam({ name: 'id', description: 'ID del log de backup cuyo archivo se desea descargar' })
   async download(@Param('id', ParseIntPipe) id: number, @Res() res: Response) {
     const log = await this.prisma.backupLog.findUnique({ where: { id } });
 
-    if (!log) {
-      throw new NotFoundException(`BackupLog ${id} no existe`);
-    }
-    if (!log.rutaArchivo) {
-      throw new NotFoundException(
-        `El backup ${id} no tiene archivo asociado (estado: ${log.estado})`,
-      );
-    }
-    if (!existsSync(log.rutaArchivo)) {
-      throw new NotFoundException(
-        `El archivo ${log.rutaArchivo} no se encontró en el sistema de archivos (puede haber sido eliminado por la política de retención)`,
-      );
-    }
+    if (!log) throw new NotFoundException(`BackupLog ${id} no existe`);
+    if (!log.rutaArchivo) throw new NotFoundException(`El backup ${id} no tiene archivo asociado`);
+    if (!existsSync(log.rutaArchivo)) throw new NotFoundException(`El archivo no se encontró en el disco.`);
 
     const stat = statSync(log.rutaArchivo);
     const filename = basename(log.rutaArchivo);
