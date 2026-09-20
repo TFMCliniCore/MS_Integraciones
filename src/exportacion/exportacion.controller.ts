@@ -1,18 +1,22 @@
 import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { ExportacionService } from './exportacion.service';
 import { ExportarDto } from './dto/exportar.dto';
 
+@ApiTags('Integraciones - Exportación de Datos Externos')
 @Controller('integraciones/exportacion')
 export class ExportacionController {
   constructor(private readonly exportacionService: ExportacionService) {}
 
   @Get('plantillas')
+  @ApiOperation({ summary: 'Listar estructuras, formatos y layouts soportados para exportación masiva' })
   listarPlantillas() {
     return this.exportacionService.listarPlantillas();
   }
 
   @Post('generar')
+  @ApiOperation({ summary: 'Procesar, estructurar y descargar reportes crudos en archivos planos comprimidos' })
   async generar(@Body() dto: ExportarDto, @Req() req: Request, @Res() res: Response) {
     const usuarioId = Number(req.headers['x-usuario-id'] ?? 0) || undefined;
     const result = await this.exportacionService.exportar(dto, usuarioId);

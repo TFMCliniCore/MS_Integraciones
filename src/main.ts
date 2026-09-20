@@ -2,15 +2,17 @@ import { existsSync } from 'node:fs';
 import { loadEnvFile } from 'node:process';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'; // 👈 Importamos Swagger
 import { AppModule } from './app.module';
 import { PrismaClientExceptionFilter } from './prisma/prisma-client-exception.filter';
 
 // JSON.stringify no serializa BigInt de forma nativa.
-// tamanioBytes en BackupLog es BigInt — lo convertimos a Number en la respuesta.
-// Number es seguro hasta ~9 PB (MAX_SAFE_INTEGER), suficiente para backups de BD.
 (BigInt.prototype as unknown as { toJSON: () => number }).toJSON = function () {
   return Number(this);
 };
+
+// 🚀 Exportamos el documento de forma global para usarlo en el controlador
+export let swaggerDocument: any;
 
 async function bootstrap() {
   if (existsSync('.env')) loadEnvFile();
@@ -30,7 +32,22 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapterHost));
 
-  await app.listen(process.env.PORT || 3009, '0.0.0.0');
-  console.log(`MS Integraciones corriendo en puerto ${process.env.PORT ?? 3009}`);
+  // 🎯 Configuración de Swagger para Integraciones
+  const config = new DocumentBuilder()
+    .setTitle('CliniCore - MS Integraciones')
+    .setDescription('Módulo centralizado para notificaciones (Email, WhatsApp), videollamadas (Meet/Zoom) y backups automatizados')
+    .setVersion('1.0')
+    .build();
+
+  swaggerDocument = SwaggerModule.createDocument(app, config);
+
+  // Dejamos la UI disponible localmente por si acaso
+  SwaggerModule.setup('api/v1/integraciones/docs', app, swaggerDocument, {
+    swaggerOptions: { jsonEditor: true },
+  });
+
+  const port = process.env.PORT || 3009;
+  await app.listen(port, '0.0.0.0');
+  console.log(`MS Integraciones corriendo en puerto ${port}`);
 }
 void bootstrap();
